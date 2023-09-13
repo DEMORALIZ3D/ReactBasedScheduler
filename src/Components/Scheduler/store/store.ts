@@ -1,9 +1,11 @@
 import { configureStore } from "@reduxjs/toolkit";
+import eventsSlice from "./events/slice";
 import resourcesSlice from "./resources/slice";
 
 export const store = configureStore({
   reducer: {
     resources: resourcesSlice,
+    events: eventsSlice,
   },
 });
 
