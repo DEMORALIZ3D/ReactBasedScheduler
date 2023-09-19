@@ -1,12 +1,13 @@
-export type Event = {
-  id: number;
+export type EventItem = {
+  id?: number;
   name: string;
-  meta?: Record<string, unknown>;
-  resourceId?: number | string;
-  date?: Date;
+  meta?: Record<string, unknown> | null;
+  resourceId?: number | string | null;
+  startDate?: Date | null;
+  endDate?: Date | null;
 };
 
-export type EventsList = Event[] | null;
+export type EventsList = EventItem[] | null;
 
 export interface EventsState {
   filter: {
@@ -15,4 +16,5 @@ export interface EventsState {
   eventsList: EventsList;
   filteredList: EventsList;
   availableEvents: EventsList;
+  newEvents: EventsList;
 }

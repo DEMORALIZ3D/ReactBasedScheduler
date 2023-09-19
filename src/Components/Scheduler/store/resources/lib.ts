@@ -1,11 +1,12 @@
-export type ResourceList =
-  | {
-      id: string | number;
-      image?: string | null;
-      name: string;
-      [key: string]: unknown;
-    }[]
-  | null;
+export type ResourceItem = {
+  id: string | number;
+  image?: string | null;
+  name: string;
+  contractedHours: number;
+  [key: string]: unknown;
+};
+
+export type ResourceList = ResourceItem[] | null;
 
 export interface ResourcesState {
   filter: {
