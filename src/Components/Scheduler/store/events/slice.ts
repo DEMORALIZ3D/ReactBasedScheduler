@@ -77,10 +77,8 @@ export const eventsSlice = createSlice({
       state.filteredList = list;
       state.availableEvents =
         payload?.filter((event) => !event.startDate || !event.resourceId) ?? [];
-      console.log("list");
     },
     addEvent: (state, { payload }: PayloadAction<EventItem>) => {
-      console.log("addEvent", payload);
       state.eventsList = [
         ...(state.eventsList ?? []),
         ...processEvents([payload]),

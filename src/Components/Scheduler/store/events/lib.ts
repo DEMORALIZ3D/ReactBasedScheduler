@@ -1,10 +1,10 @@
 export type EventItem = {
-  id?: number;
+  id: number;
   name: string;
   meta?: Record<string, unknown> | null;
-  resourceId?: number | string | null;
-  startDate?: Date | null;
-  endDate?: Date | null;
+  resourceId: number | string | null;
+  startDate: Date | null;
+  endDate: Date | null;
 };
 
 export type EventsList = EventItem[] | null;

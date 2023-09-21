@@ -34,6 +34,7 @@ const RBScheduler = ({
     handleContextMenu: handleResourceMenu,
     contextMenuData: resourceMenuData,
     contextMenuPosition: resourceMenuPosition,
+    setContextMenuData: setResourceMenuData,
   } = useContextMenu();
 
   const {
@@ -67,7 +68,6 @@ const RBScheduler = ({
   const { filteredResourceList } = useResources(resourcesRaw);
 
   const { filteredEventsList, removeEvent } = useEvents(eventsRaw);
-  console.log({ config });
 
   return (
     <div>
@@ -126,7 +126,6 @@ const RBScheduler = ({
             <SheduleRow key={resource.name + i}>
               <ResourceInfoCell>
                 <>
-                  {console.log({ resourceName: resource.name })}
                   {resource.image || config.resource.avatar ? (
                     resource.image ? (
                       <div>img</div>
@@ -172,6 +171,10 @@ const RBScheduler = ({
                                 hue={Math.floor(Math.random() * 360) + 1}
                                 onContextMenu={(evt) => {
                                   handleEventMenu(evt, event, date);
+                                  setResourceMenuData({
+                                    data: resource,
+                                    date,
+                                  });
                                   evt.stopPropagation();
                                 }}
                               >
@@ -217,6 +220,11 @@ const RBScheduler = ({
           <h5 style={{ padding: "0 8px 0 0", margin: 0 }}>
             {resourceMenuData?.data?.name}
           </h5>
+          {resourceMenuData?.date ? (
+            <h6 style={{ margin: 0, padding: 0 }}>
+              {format(resourceMenuData.date, "PP")}
+            </h6>
+          ) : null}
           <hr />
           <div onClick={() => setAddShift(true)}>Add Shift</div>
           <div>View Day</div>
@@ -233,13 +241,13 @@ const RBScheduler = ({
             {eventMenuData?.data.name}
           </h5>
           <div>
-            <div>
+            <h6 style={{ margin: 0, padding: 0 }}>
               {eventMenuData?.data.startDate &&
-                format(eventMenuData?.data.startDate, "Pp")}
-              -
+                format(eventMenuData?.data.startDate, "eee eo MMM, HH:mm")}{" "}
+              -{" "}
               {eventMenuData?.data.endDate &&
-                format(eventMenuData?.data.endDate, "PPpp")}
-            </div>
+                format(eventMenuData?.data.endDate, "eee eo MMM, HH:mm")}
+            </h6>
             {eventMenuData?.data.hours ? (
               <div>Hrs: {eventMenuData?.data.hours}</div>
             ) : null}
@@ -253,12 +261,16 @@ const RBScheduler = ({
           >
             Remove Shift
           </div>
+          <div onClick={() => setAddShift(true)}>Add another Shift</div>
         </>
       </ContextMenu>
       <AddEventDialog
         contextData={resourceMenuData}
         open={!!(addShift && resourceMenuData)}
-        closeDialog={() => setAddShift((p) => !p)}
+        closeDialog={(callback) => {
+          setAddShift((p) => !p);
+          callback && callback();
+        }}
       />
     </div>
   );

@@ -2,14 +2,16 @@ import { useState } from "react";
 
 export const useContextMenu = () => {
   const [openContextMenu, setOpenContextMenu] = useState(false);
-  const [contextMenuData, setContextMenuData] = useState(null);
+  const [contextMenuData, setContextMenuData] = useState<{
+    data: Record<string, unknown> | null;
+    date: Date | null;
+  } | null>(null);
   const [contextMenuPosition, setContextMenuPosition] = useState({
     x: 0,
     y: 0,
   });
   const handleContextMenu = (evt, data = null, date = null) => {
     evt.preventDefault();
-    console.log("handle");
     setOpenContextMenu(true);
     setContextMenuPosition({ x: evt.clientX, y: evt.clientY });
     setContextMenuData({ data, date });
@@ -22,5 +24,6 @@ export const useContextMenu = () => {
     handleContextMenu,
     contextMenuData,
     contextMenuPosition,
+    setContextMenuData,
   };
 };

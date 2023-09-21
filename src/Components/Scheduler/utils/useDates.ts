@@ -7,7 +7,7 @@ import {
   subWeeks,
   eachYearOfInterval,
 } from "date-fns";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 export const useDates = () => {
   const today = new Date(2024, 11, 30);
@@ -15,8 +15,11 @@ export const useDates = () => {
     formatISO(today, { representation: "date" }),
   );
 
-  const startOfWeek = startOfWeekDFNS(new Date(selectedDate));
-  const endOfWeek = addDays(startOfWeek, 6);
+  const startOfWeek = useMemo(
+    () => startOfWeekDFNS(new Date(selectedDate)),
+    [selectedDate],
+  );
+  const endOfWeek = useMemo(() => addDays(startOfWeek, 6), [startOfWeek]);
 
   const setNextWeek = () => {
     setSelectedDate(() =>
@@ -29,16 +32,34 @@ export const useDates = () => {
     );
   };
 
-  const allDatesOfWeek = eachDayOfInterval({
-    start: startOfWeek,
-    end: endOfWeek,
-  });
+  const allDatesOfWeek = useMemo(
+    () =>
+      eachDayOfInterval({
+        start: startOfWeek,
+        end: endOfWeek,
+      }),
+    [startOfWeek, endOfWeek],
+  );
   const eachYearOfDayInWeek = allDatesOfWeek.map((date) => date.getFullYear());
 
-  const yearsInWeek = eachYearOfInterval({
-    start: allDatesOfWeek[0],
-    end: allDatesOfWeek[allDatesOfWeek.length - 1],
-  });
+  const yearsInWeek = useMemo(
+    () =>
+      eachYearOfInterval({
+        start: allDatesOfWeek[0],
+        end: allDatesOfWeek[allDatesOfWeek.length - 1],
+      }),
+    [allDatesOfWeek],
+  );
+
+  const formatDateForInput = (date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are 0-based, so we add 1 and format as two digits.
+    const day = String(date.getDate()).padStart(2, "0");
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
+  };
 
   return {
     selectedDate,
@@ -50,5 +71,6 @@ export const useDates = () => {
     setPrevWeek,
     eachYearOfDayInWeek,
     yearsInWeek,
+    formatDateForInput,
   };
 };

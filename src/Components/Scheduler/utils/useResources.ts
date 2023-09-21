@@ -25,7 +25,6 @@ export const useResources = (resourcesRaw: ResourceList) => {
       resourcesRaw &&
       resourcesRaw.length > 0
     ) {
-      console.log("init", { isResourcesListInitialised });
       initialiseResource(resourcesRaw);
     } else {
       new Error("Unable to initialise, no resources found");

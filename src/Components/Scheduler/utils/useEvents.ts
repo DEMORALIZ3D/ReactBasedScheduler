@@ -1,13 +1,16 @@
-import { useCallback, useEffect } from "react";
+import { ChangeEvent, useCallback, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { EventItem, EventsList } from "../store/events/lib";
 import {
   initEvents,
+  addEvent as addEventFunc,
   removeEvent as removeEventFunc,
 } from "../store/events/slice";
 import { useTypedSelector } from "./stateHooks";
+import { ResourceItem } from "../store/resources/lib";
+import initialiseEvent from "./intitialiseEvent";
 
-export const useEvents = (eventsRaw: EventsList) => {
+export const useEvents = (eventsRaw?: EventsList) => {
   const dispatch = useDispatch();
   const eventsList = useTypedSelector((state) => state.events.eventsList);
   const filteredEventsList = eventsList;
@@ -16,17 +19,36 @@ export const useEvents = (eventsRaw: EventsList) => {
   );
   const isEventsListInitialised = !!(eventsList && eventsList.length > 0);
 
-  const initialiseEvent = (payload: EventsList) =>
+  const initialiseEvents = (payload: EventsList) =>
     dispatch(initEvents(payload));
 
   const init = useCallback(() => {
     if (!isEventsListInitialised && eventsRaw && eventsRaw.length > 0) {
-      console.log("init", { isEventsListInitialised });
-      initialiseEvent(eventsRaw);
+      initialiseEvents(eventsRaw);
     }
   }, [eventsRaw, isEventsListInitialised]);
 
-  const addEvent = (date, resource, eventDetails) => {};
+  const addEvent = (props: {
+    eventName: ChangeEvent<HTMLInputElement>["target"];
+    startDateTime: string;
+    endDateTime: string;
+    contextData: {
+      date: Date;
+      resource: ResourceItem;
+    };
+  }) => {
+    const { eventName, startDateTime, endDateTime, contextData } = props;
+    const { data } = contextData;
+    const event = initialiseEvent({
+      name: String(eventName?.value),
+      resourceId: Number(data.id),
+      startDate: new Date(startDateTime),
+      endDate: new Date(endDateTime),
+    });
+    if (event) {
+      dispatch(addEventFunc(event));
+    }
+  };
 
   const removeEvent = (eventId: EventItem["id"]) =>
     dispatch(removeEventFunc(eventId));
@@ -41,5 +63,6 @@ export const useEvents = (eventsRaw: EventsList) => {
     initialiseEvent,
     availableEvents,
     removeEvent,
+    addEvent,
   };
 };

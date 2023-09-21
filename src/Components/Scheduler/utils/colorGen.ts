@@ -41,8 +41,6 @@ export const getColour = (hue: number, lum?: number) => {
       b: Math.round((b + m) * 255),
     };
   };
-  // console.log({ hue, saturation, luminance });
-  //   const rgbColor = hslToRgb(hue, saturation, luminance);
 
   return `hsl(${hue}, ${saturation}%, ${lum ?? luminance}%)`;
 };
