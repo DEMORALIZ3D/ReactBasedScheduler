@@ -42,8 +42,8 @@ export const useEvents = (eventsRaw?: EventsList) => {
     const event = initialiseEvent({
       name: String(eventName?.value),
       resourceId: Number(data.id),
-      startDate: new Date(startDateTime),
-      endDate: new Date(endDateTime),
+      startDate: startDateTime,
+      endDate: endDateTime,
     });
     if (event) {
       dispatch(addEventFunc(event));

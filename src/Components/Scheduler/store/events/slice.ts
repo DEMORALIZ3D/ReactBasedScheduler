@@ -2,7 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 import { EventsState, EventsList } from "./lib";
 import { EventItem } from "../events/lib";
-import { eachDayOfInterval, isSameDay } from "date-fns";
+import { eachDayOfInterval, format, formatISO, isSameDay } from "date-fns";
 
 const eventsInitialState: EventsState = {
   filter: {
@@ -16,7 +16,9 @@ const eventsInitialState: EventsState = {
 
 export const processEvents = (events: EventsList) => {
   const processedEvents = events.flatMap((event) => {
-    const { startDate, endDate } = event;
+    const { startDate: sd, endDate: ed } = event;
+    const startDate = new Date(sd!);
+    const endDate = new Date(ed!);
     const isEventSameDay = isSameDay(startDate!, endDate!);
     const daysInInterval = eachDayOfInterval({
       start: startDate!,
@@ -53,8 +55,8 @@ export const processEvents = (events: EventsList) => {
 
       return {
         ...event,
-        startDate: newStartDate,
-        endDate: newEndDate,
+        startDate: formatISO(newStartDate),
+        endDate: formatISO(newEndDate),
       };
     });
 
@@ -82,7 +84,7 @@ export const eventsSlice = createSlice({
       state.eventsList = [
         ...(state.eventsList ?? []),
         ...processEvents([payload]),
-      ];
+      ] as EventsList;
     },
     removeEvent: (state, { payload }: PayloadAction<EventItem["id"]>) => {
       state.eventsList = state.eventsList.filter((e) => e.id !== payload);

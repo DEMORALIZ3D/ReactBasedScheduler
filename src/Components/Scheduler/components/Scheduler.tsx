@@ -68,7 +68,7 @@ const RBScheduler = ({
   const { filteredResourceList } = useResources(resourcesRaw);
 
   const { filteredEventsList, removeEvent } = useEvents(eventsRaw);
-
+  console.log({ filteredEventsList });
   return (
     <div>
       <div id="table">
@@ -157,13 +157,13 @@ const RBScheduler = ({
                     const events = filteredEventsList?.filter(
                       (event) =>
                         event.resourceId === resource.id &&
-                        formatISO(event.startDate ?? new Date(), {
+                        formatISO(new Date(event.startDate ?? 0), {
                           representation: "date",
                         }) === formatISO(date, { representation: "date" }),
                     );
                     return events
                       ? events
-                          .sort((a, b) => (a.startDate > b.startDate ? 1 : -1))
+                          .sort((a, b) => (a.startDate > b?.startDate ? 1 : -1))
                           .map((event, i) =>
                             event ? (
                               <EventTile
@@ -182,16 +182,19 @@ const RBScheduler = ({
                                   {event.name}
                                   <div>
                                     {`${format(
-                                      event?.startDate ?? 0,
+                                      new Date(event?.startDate ?? 0),
                                       "HH:mm",
-                                    )}-${format(event?.endDate ?? 0, "HH:mm")}`}
+                                    )}-${format(
+                                      new Date(event?.endDate ?? 0),
+                                      "HH:mm",
+                                    )}`}
                                   </div>
                                   <div>
                                     (hours:{" "}
                                     {
                                       intervalToDuration({
-                                        start: event?.startDate ?? 0,
-                                        end: event?.endDate ?? 0,
+                                        start: new Date(event?.startDate ?? 0),
+                                        end: new Date(event?.endDate ?? 0),
                                       }).hours
                                     }
                                     )

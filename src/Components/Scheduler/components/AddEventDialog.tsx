@@ -1,6 +1,7 @@
 import {
   addDays,
   addWeeks,
+  eachDayOfInterval,
   format,
   formatISO,
   getHours,
@@ -42,7 +43,11 @@ const AddEventDialog = ({
     every: string;
     frequency: string;
     until: string;
-  }>({ every: "weeks", frequency: "0", until: "" });
+  }>({
+    every: "days",
+    frequency: "2",
+    until: formatDateForInput(addDays(new Date(), 55), false),
+  });
 
   const { addEvent } = useEvents();
 
@@ -95,6 +100,8 @@ const AddEventDialog = ({
           const { every, frequency, until } = repeatsEvery;
           const eventSchedule = [];
 
+          console.log({ event, repeatsEvery });
+
           let startDate = new Date(startDateTime);
           let endDate = new Date(endDateTime);
           const untilDate = new Date(until);
@@ -104,18 +111,35 @@ const AddEventDialog = ({
           while (!isAfter(startDate, untilDate)) {
             const currentEventStart = new Date(startDate);
             const currentEventEnd = new Date(endDate);
-
+            const daysInEvent =
+              every === "days"
+                ? eachDayOfInterval({
+                    start: currentEventStart,
+                    end: currentEventEnd,
+                  })?.length ?? 0
+                : 0;
             eventSchedule.push({
-              startDateTime: format(currentEventStart, "yyyy-MM-dd HH:mm:ss"),
-              endDateTime: format(currentEventEnd, "yyyy-MM-dd HH:mm:ss"),
+              startDateTime: formatDateForInput(currentEventStart),
+              endDateTime: formatDateForInput(currentEventEnd),
+            });
+            const frequencyWithOffset = Number(frequency) + Number(daysInEvent);
+
+            console.log("b4", {
+              startDate,
+              untilDate,
+              currentEventStart,
+              currentEventEnd,
+              daysInEvent,
+              frequencyWithOffset,
             });
 
-            startDate = addFunction(startDate, frequency);
-            endDate = addFunction(endDate, frequency);
+            startDate = addFunction(startDate, frequencyWithOffset);
+            endDate = addFunction(endDate, frequencyWithOffset);
           }
           console.log({ eventSchedule });
           return eventSchedule;
         };
+
         const allDates = generateEventSchedule(
           { startDateTime, endDateTime },
           repeatsEvery,
@@ -124,8 +148,8 @@ const AddEventDialog = ({
           allDates.forEach((dates) => {
             addEvent({
               eventName,
-              startDateTime: formatDateForInput(dates.startDateTime),
-              endDateTime: formatDateForInput(dates.endDateTime),
+              startDateTime: dates.startDateTime,
+              endDateTime: dates.endDateTime,
               contextData,
             });
           });
@@ -215,53 +239,50 @@ const AddEventDialog = ({
               })}
             </div>
           </div>
-        ) : (
-          <div>
-            <h5 style={{ margin: "8px 0" }}>Event Repeat</h5>
-            <div
-              style={{
-                display: "flex",
-                flexGrow: 1,
-                justifyContent: "space-evenly",
-              }}
-            >
-              <div
-                style={{ display: "flex", gap: "8px", alignItems: "center" }}
+        ) : null}
+        <div>
+          <h5 style={{ margin: "8px 0" }}>Event Repeat</h5>
+          <div
+            style={{
+              display: "flex",
+              flexGrow: 1,
+              justifyContent: "space-evenly",
+            }}
+          >
+            <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+              <label>Event repeats every</label>
+              <input
+                type="number"
+                style={{ width: "50px" }}
+                value={repeatsEvery.frequency}
+                onChange={(evt) =>
+                  setRepeatsEvery((p) => ({
+                    ...p,
+                    frequency: evt.target.value,
+                  }))
+                }
+              />
+              <select
+                value={repeatsEvery.every}
+                onChange={(evt: React.ChangeEvent<HTMLSelectElement>) =>
+                  setRepeatsEvery((p) => ({ ...p, every: evt.target.value }))
+                }
               >
-                <label>Event repeats every</label>
-                <input
-                  type="number"
-                  style={{ width: "50px" }}
-                  value={repeatsEvery.frequency}
-                  onChange={(evt) =>
-                    setRepeatsEvery((p) => ({
-                      ...p,
-                      frequency: evt.target.value,
-                    }))
-                  }
-                />
-                <select
-                  value={repeatsEvery.every}
-                  onChange={(evt: React.ChangeEvent<HTMLSelectElement>) =>
-                    setRepeatsEvery((p) => ({ ...p, every: evt.target.value }))
-                  }
-                >
-                  <option value="none">none</option>
-                  <option value="weeks">Weeks</option>
-                  <option value="days">Days</option>
-                </select>
-                <label>until</label>
-                <input
-                  type="date"
-                  value={repeatsEvery.until}
-                  onChange={(evt: React.ChangeEvent<HTMLSelectElement>) =>
-                    setRepeatsEvery((p) => ({ ...p, until: evt.target.value }))
-                  }
-                />
-              </div>
+                <option value="none">none</option>
+                <option value="weeks">Weeks</option>
+                <option value="days">Days</option>
+              </select>
+              <label>until</label>
+              <input
+                type="date"
+                value={repeatsEvery.until}
+                onChange={(evt: React.ChangeEvent<HTMLInputElement>) =>
+                  setRepeatsEvery((p) => ({ ...p, until: evt.target.value }))
+                }
+              />
             </div>
           </div>
-        )}
+        </div>
         <InputWrapper>
           <label>Event Description:</label>
           <textarea name="event-description" />

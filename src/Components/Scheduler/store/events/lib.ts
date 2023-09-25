@@ -3,8 +3,8 @@ export type EventItem = {
   name: string;
   meta?: Record<string, unknown> | null;
   resourceId: number | string | null;
-  startDate: Date | null;
-  endDate: Date | null;
+  startDate: string | null;
+  endDate: string | null;
 };
 
 export type EventsList = EventItem[] | null;
